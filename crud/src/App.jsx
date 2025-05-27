@@ -1,5 +1,7 @@
+// App.jsx
 import React, { useEffect, useState } from "react";
-import './App.css'
+import "./App.css";
+
 const API_URL = "http://localhost:5000/tasks";
 
 function App() {
@@ -12,97 +14,93 @@ function App() {
   }, []);
 
   const fetchTasks = async () => {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    setTasks(data);
-  };
-
-  const handleAddTask = async (e) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
-    });
-
-    if (res.ok) {
-      const newTask = await res.json();
-      setTasks([...tasks, newTask]);
-      setTitle("");
-    } else {
-      alert("Failed to add task");
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setTasks(data);
+    } catch {
+      alert("Failed to load tasks");
     }
   };
 
-  const startEdit = (task) => {
-    setEditId(task._id);
-    setTitle(task.title);
-  };
-
-  const handleUpdateTask = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    const res = await fetch(`${API_URL}/${editId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
-    });
+    try {
+      const url = editId ? `${API_URL}/${editId}` : API_URL;
+      const method = editId ? "PUT" : "POST";
 
-    if (res.ok) {
-      const updatedTask = await res.json();
-      setTasks(tasks.map((task) => (task._id === editId ? updatedTask : task)));
-      setEditId(null);
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message);
+
+      if (editId) {
+        setTasks(tasks.map((t) => (t._id === editId ? result : t)));
+      } else {
+        setTasks([...tasks, result]);
+      }
+
       setTitle("");
-    } else {
-      alert("Failed to update task");
+      setEditId(null);
+    } catch (err) {
+      alert(err.message || "Action failed");
     }
   };
 
   const toggleComplete = async (id) => {
-    const res = await fetch(`${API_URL}/${id}/toggle`, { method: "PATCH" });
-    if (res.ok) {
-      const updatedTask = await res.json();
-      setTasks(tasks.map((task) => (task._id === id ? updatedTask : task)));
-    } else {
-      alert("Failed to toggle task");
+    try {
+      const res = await fetch(`${API_URL}/${id}/toggle`, { method: "PATCH" });
+      const updated = await res.json();
+      setTasks(tasks.map((t) => (t._id === id ? updated : t)));
+    } catch {
+      alert("Toggle failed");
     }
   };
 
-  const handleDeleteTask = async (id) => {
-    const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setTasks(tasks.filter((task) => task._id !== id));
-    } else {
-      alert("Failed to delete task");
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message);
+      setTasks(tasks.filter((t) => t._id !== id));
+    } catch (err) {
+      alert(err.message || "Delete failed");
     }
+  };
+
+  const startEdit = (task) => {
+    setTitle(task.title);
+    setEditId(task._id);
   };
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", textAlign: "center" }}>
-      <h1>Daily Task Manager</h1>
+      <h1>Task Manager</h1>
 
-      <form onSubmit={editId ? handleUpdateTask : handleAddTask}>
+      <form onSubmit={handleSubmit}>
         <input
-          type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter task title"
-          style={{ width: "70%", padding: "0.5rem" }}
+          placeholder="Enter task"
+          style={{ padding: "0.5rem", width: "70%" }}
         />
-        <button type="submit" style={{ marginLeft: 8, padding: "0.5rem 1rem" }}>
+        <button style={{ padding: "0.5rem", marginLeft: 8 }}>
           {editId ? "Update" : "Add"}
         </button>
         {editId && (
           <button
             type="button"
             onClick={() => {
-              setEditId(null);
               setTitle("");
+              setEditId(null);
             }}
-            style={{ marginLeft: 8, padding: "0.5rem 1rem" }}
+            style={{ marginLeft: 8 }}
           >
             Cancel
           </button>
@@ -116,28 +114,26 @@ function App() {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
               padding: "0.5rem 0",
               borderBottom: "1px solid #ccc",
+              alignItems: "center",
             }}
           >
             <span
               onClick={() => toggleComplete(task._id)}
               style={{
                 cursor: "pointer",
-                userSelect: "none",
                 textDecoration: task.completed ? "line-through" : "none",
                 color: task.completed ? "gray" : "black",
               }}
-              title="Click to toggle completion"
             >
-              {task.completed ? "✔️ " : "⭕ "} {task.title}
+              {task.completed ? "✔️" : "⭕"} {task.title}
             </span>
             <div>
               <button onClick={() => startEdit(task)} style={{ marginRight: 8 }}>
                 Edit
               </button>
-              <button onClick={() => handleDeleteTask(task._id)}>Delete</button>
+              <button onClick={() => handleDelete(task._id)}>Delete</button>
             </div>
           </li>
         ))}
