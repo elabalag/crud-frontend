@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import './App.css'
-const API_URL = "http://localhost:5000/tasks";
+const API_URL = "https://crud-backend-6msv.onrender.com/tasks";
 
 function App() {
   const [tasks, setTasks] = useState([]);
