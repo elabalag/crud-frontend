@@ -1,0 +1,82 @@
+/* Center the main container with max width and padding */
+#root {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+}
+
+/* Style for the input box */
+input[type="text"] {
+  width: 70%;
+  padding: 0.6em 1em;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #646cff;
+  outline: none;
+}
+
+/* Style for buttons */
+button {
+  padding: 0.6em 1.2em;
+  margin-left: 0.5em;
+  font-size: 1rem;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #4a54e1;
+}
+
+/* List styling */
+ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 2rem;
+  text-align: left;
+}
+
+/* Each list item */
+li {
+  display: flex;
+  align-items: center;
+  padding: 0.6em 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1.1rem;
+}
+
+/* Checkbox spacing */
+li input[type="checkbox"] {
+  margin-right: 1em;
+  cursor: pointer;
+}
+
+/* Delete button styling */
+li button {
+  margin-left: auto;
+  background-color: #ff5c5c;
+}
+
+li button:hover {
+  background-color: #e04545;
+}
+
+/* Completed task style */
+li.completed {
+  text-decoration: line-through;
+  color: #999;
+}
